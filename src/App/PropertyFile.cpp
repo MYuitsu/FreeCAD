@@ -508,13 +508,9 @@ void PropertyFileIncluded::RestoreDocFile(Base::Reader& reader)
 {
     Base::FileInfo fi(_cValue.c_str());
     if (fi.exists() && !fi.isWritable()) {
-        // A same-document object copy can restore the original property's file
-        // name. Each property owns (and deletes/replaces) its included file, so
-        // borrowing that path would let edits or destruction corrupt the source.
-        // Read the archive entry into a distinct owned file instead.
-        _cValue = getUniqueFileName(fi.dirPath(), fi.fileName());
-        fi.setFile(_cValue);
-        _BaseFileName = fi.fileName();
+        // This happens when an object is being restored and tries to reference the
+        // same file of another object (e.g. for copy&paste of objects inside the same document).
+        return;
     }
     Base::ofstream to(fi, std::ios::out | std::ios::binary);
     if (!to) {
